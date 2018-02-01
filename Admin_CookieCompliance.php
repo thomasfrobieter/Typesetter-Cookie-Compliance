@@ -30,27 +30,95 @@ class Admin_CookieCompliance {
   }
 
   function showForm() {
-    global $langmessage;
-    echo '<h1>EU Cookie Compliance</h1>';
+    global $page, $langmessage;
+    echo '<h2 class="hqmargin">EU Cookie Compliance</h2>';
+    echo '<h4 style="margin:1em 0;">Set up your cookie compliance message below</h4>';
 
     echo '<form action="' . common::GetUrl('Admin_CookieCompliance') . '" method="post">';
 
-    echo '<p>Set up your cookie compliance message below.</p>';
+    echo '<table class="bordered" style="width:90%">';
 
-    echo '<div><label>Button Background Color (Hex):</label><input type="text" name="button_color" placeholder="000000" maxlength="6" value="' . htmlspecialchars($this->button_color) . '" class="gpinput" style="width:200px" /></div>';
-    echo '<div><label>Button Text Color (Hex):</label><input type="text" name="button_text_color" placeholder="000000" maxlength="6" value="' . htmlspecialchars($this->button_text_color) . '" class="gpinput" style="width:200px" /></div>';
-    echo '<div><label>Background Color (Hex):</label><input type="text" name="background_color" placeholder="000000" maxlength="6" value="' . htmlspecialchars($this->background_color) . '" class="gpinput" style="width:200px" /></div>';
-    echo '<div><label>Text Color (Hex):</label><input type="text" name="text_color" placeholder="000000" maxlength="6" value="' . htmlspecialchars($this->text_color) . '" class="gpinput" style="width:200px" /></div>';
-    echo '<div><label>Header Text:</label><input type="text" name="header_text" value="' . htmlspecialchars($this->header_text) . '" class="gpinput" style="width:200px" /></div>';
-    echo '<div><label>Text:</label><input type="text" name="text" value="' . htmlspecialchars($this->text) . '" class="gpinput" style="width:200px" /></div>';
-    echo '<div><label>Agree Button Text:</label><input type="text" name="agree_button_text" value="' . htmlspecialchars($this->agree_button_text) . '" class="gpinput" style="width:200px" /></div>';
-    echo '<div><label>Policy Button Text:</label><input type="text" name="policy_button_text" value="' . htmlspecialchars($this->policy_button_text) . '" class="gpinput" style="width:200px" /></div>';
-    echo '<div><label>Policy URL (relative or full):</label><input type="text" name="policy_url" value="' . htmlspecialchars($this->policy_url) . '" class="gpinput" style="width:200px" /></div>';
+    echo '<tr>';
+    echo '<th style="width:25%;">' . $langmessage['options'] . '</th>';
+    echo '<th style="width:75%;">' . $langmessage['Current_Value'] . '</th>';
+    echo '</tr>';
+
+    echo '<tr>';
+    echo '<td><label>Button Background Color (Hex)</label></td>';
+    echo '<td>#<input type="text" name="button_color" placeholder="000000" maxlength="6" value="' . htmlspecialchars($this->button_color) . '" class="gpinput" style="width:60px" /></td>';
+    echo '</tr>';
+
+    echo '<tr>';
+    echo '<td><label>Button Text Color (Hex)</label></td>';
+    echo '<td>#<input type="text" name="button_text_color" placeholder="000000" maxlength="6" value="' . htmlspecialchars($this->button_text_color) . '" class="gpinput" style="width:60px" /></td>';
+    echo '</tr>';
+
+    echo '<tr>';
+    echo '<td><label>Background Color (Hex)</label></td>';
+    echo '<td>#<input type="text" name="background_color" placeholder="000000" maxlength="6" value="' . htmlspecialchars($this->background_color) . '" class="gpinput" style="width:60px" /></td>';
+    echo '</tr>';
+
+    echo '<tr>';
+    echo '<td><label>Text Color (Hex)</label></td>';
+    echo '<td>#<input type="text" name="text_color" placeholder="000000" maxlength="6" value="' . htmlspecialchars($this->text_color) . '" class="gpinput" style="width:60px" /></td>';
+    echo '</tr>';
+
+    echo '<tr>';
+    echo '<td><label>Header Text</label></td>';
+    echo '<td><input type="text" name="header_text" value="' . htmlspecialchars($this->header_text) . '" class="gpinput" style="width:100%" /></td>';
+    echo '</tr>';
+
+    echo '<tr>';
+    echo '<td><label>Text</label></td>';
+    echo '<td><textarea name="text" rows="4" class="gptextarea" style="width:100%">' . htmlspecialchars($this->text) . '</textarea></td>';
+    echo '</tr>';
+
+    echo '<tr>';
+    echo '<td><label>Agree Button Text</label></td>';
+    echo '<td><input type="text" name="agree_button_text" value="' . htmlspecialchars($this->agree_button_text) . '" class="gpinput" style="width:100%" /></td>';
+    echo '</tr>';
+
+    echo '<tr>';
+    echo '<td><label>Policy Button Text</label></td>';
+    echo '<td><input type="text" name="policy_button_text" value="' . htmlspecialchars($this->policy_button_text) . '" class="gpinput" style="width:100%" /></td>';
+    echo '</tr>';
+
+    echo '<tr>';
+    echo '<td><label>Policy URL (relative or full)</label></td>';
+    echo '<td><input type="text" name="policy_url" value="' . htmlspecialchars($this->policy_url) . '" class="gpinput" style="width:100%" /></td>';
+    echo '</tr>';
+
+    echo '</table>';
 
     echo '<input type="hidden" name="cmd" value="saveConfig" />';
-
     echo '<input type="submit" value="' . htmlspecialchars($langmessage['save_changes']) . '" class="gpsubmit" style="margin-top:2em; "/>';
     echo '</form>';
+
+    \gp\tool::LoadComponents('autocomplete');
+    $page->head_script .=  \gp\tool\Editing::AutoCompleteValues(true);
+    $page->jQueryCode .= '
+    $("input[name=\"policy_url\"]")
+      .autocomplete({
+        source    : gptitles,
+        appendTo  : "#gp_admin_html",
+        delay     : 100, 
+        minLength : 0,
+        select    : function(event,ui){
+                      if( ui.item ){
+                        $(this).val(encodeURI(ui.item[1]));
+                        $(this).trigger("change");
+                        event.stopPropagation();
+                        return false;
+                      }
+                    }
+      }).data("ui-autocomplete")._renderItem = function(ul,item) {
+        return $("<li></li>")
+          .data("ui-autocomplete-item", item[1])
+          .append("<a>" + $gp.htmlchars(item[0]) + "<span>" + $gp.htmlchars(item[1]) +"</span></a>")
+          .appendTo(ul);
+      };
+    ';
+
   }
 
   function saveConfig() {
