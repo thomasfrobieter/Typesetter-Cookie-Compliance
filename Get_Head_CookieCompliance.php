@@ -4,13 +4,19 @@
     global                   $page;
     global                   $addonPathData;
 
+    if( $page->requested != 'Admin_CookieCompliance' && ! $page->title )
+    { 
+      // don't show on other admin pages ( ! $page->title ==> admin page )
+      return;
+    }
+
     $configFile              = $addonPathData.'/config.php';
     if( ! file_exists( $configFile ) )
     {
       return;
     }
 
-    include_once $configFile;
+    include $configFile;
 
     if( ! isset( $config ) )
     {
@@ -65,4 +71,3 @@
     $page->head           .= "\n</script>";
     $page->head           .= "\n";
   }
-?>
